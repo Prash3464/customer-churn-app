@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Customer Churn Prediction</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        padding: 30px;
+        border-radius: 15px;
+        width: 700px;   /* 🔥 width increase */
+        color: white;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 🔥 2 columns */
+        gap: 40px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #00c9a7;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 15px;
+    }
+
+    button:hover {
+        background: #00a78e;
+    }
+
+    .result {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .exit { color: #ff9f43; }
+    .stay { color: #00ffcc; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>💳 Churn Predictor</h2>
+
+    <div class="grid">
+        <input id="CreditScore" placeholder="Credit Score">
+        <input id="Age" placeholder="Age">
+
+
+        <select id="Gender">
+            <option>Male</option>
+            <option>Female</option>
+        </select>
+
+        <input id="Tenure" placeholder="Tenure">
+        <input id="Balance" placeholder="Balance">
+
+        <input id="NumOfProducts" placeholder="Num Of Products">
+        <input id="EstimatedSalary" placeholder="Estimated Salary">
+
+        <input id="HasCrCard" placeholder="Has Credit Card (0/1)">
+        <input id="IsActiveMember" placeholder="Active Member (0/1)">
+    </div>
+
+    <button onclick="predict()">Predict</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function predict() {
+
+    const data = {
+        CreditScore: parseFloat(document.getElementById("CreditScore").value),
+        Gender: document.getElementById("Gender").value,
+        Age: parseFloat(document.getElementById("Age").value),
+        Tenure: parseFloat(document.getElementById("Tenure").value),
+        Balance: parseFloat(document.getElementById("Balance").value),
+        NumOfProducts: parseFloat(document.getElementById("NumOfProducts").value),
+        HasCrCard: parseFloat(document.getElementById("HasCrCard").value),
+        IsActiveMember: parseFloat(document.getElementById("IsActiveMember").value),
+        EstimatedSalary: parseFloat(document.getElementById("EstimatedSalary").value)
+    };
+
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    const resultDiv = document.getElementById("result");
+    console.log(result)
+
+    if(result.prediction === 1){
+        resultDiv.innerHTML = `
+            ${result.result} with a confidence of ${result.confidence} — meaning there’s a ${result.confidence} probability this ${result.result}.
+        `;
+        resultDiv.className = "result exit";
+    } else {
+        resultDiv.innerHTML = `
+            ${result.result} with a confidence of ${result.confidence} — meaning there’s a ${result.confidence} probability this ${result.result}.
+        `;
+        resultDiv.className = "result stay";
+    }
+}
+</script>
+
+</body>
+</html>
